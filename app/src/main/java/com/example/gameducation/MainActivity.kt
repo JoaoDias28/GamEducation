@@ -58,14 +58,17 @@ import okhttp3.Request
 
 class MainActivity : ComponentActivity()  {
     var orderedItemOrder = -1
-    val REQUEST_CODE = 123
+    var tentativa = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val intent = intent
 
         if(intent != null){
-              orderedItemOrder =  intent.getIntExtra("order",-1)
+            println("onCreate intent!=null $orderedItemOrder")
+              orderedItemOrder =  intent.getIntExtra("order",0)
+            println("onCreate depois do intent $orderedItemOrder")
+                tentativa = intent.getIntExtra("tentativa",tentativa)
             }
 
         setContent {
@@ -199,29 +202,37 @@ fun AppGameEducation(orderedItemOrder: Int, context:Context) {
 
 
                 combinedData?.let { data ->
+
+                    this@MainActivity.orderedItemOrder = data.ordemAtual
+                    println("onCreate ${data.ordemAtual.toString()}")
+                    println("onCreate ${ this@MainActivity.orderedItemOrder}")
+                    this@MainActivity.tentativa = data.tentativa
+                    var maxQuestions = combinedData!!.perguntas.size + combinedData!!.conteudos_didaticos.size
                     val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
                     val serializedData = combinedData?.toJson()
+                    sharedPreferences.edit().remove("combinedData")
+                    sharedPreferences.edit().remove("maxQuestions")
                     sharedPreferences.edit().putString("combinedData", serializedData).apply()
+                    sharedPreferences.edit().putInt("maxQuestions",maxQuestions).apply()
 
-                    val orderedItemsPergunta = data.perguntas.sortedBy { it.ordem }
-                    val orderedItemsConteudoDidatico = data.conteudos_didaticos.sortedBy { it.ordem }
 
                     val gamePackageName =data.jogo.package_name  // Replace with fetched package name data.jogo.package_name
                     val gameApkUrl = "http://10.0.2.2:80/framework/programador/getJogo.php?apk=${data.jogo.caminho_apk}" // Replace with actual APK URL
 
-                    val intent = Intent(gamePackageName+".ACTION_OPEN_GAME")
-                    startActivity(intent)
 
 
-                        val gameIntent = context.packageManager.getLaunchIntentForPackage(gamePackageName)
 
-                        if (gameIntent != null ) {
-                            // Game app is installed, launch it
-                            this@MainActivity.startActivityForResult(intent, REQUEST_CODE)
+                    val intent = Intent("$gamePackageName.ACTION_OPEN_GAME")
+                    Log.d("debugTag","orderedItemOrder mainactivity: ${this@MainActivity.orderedItemOrder}")
+                    Log.d("debugTag","gamePackageName.ACTION_OPEN_GAME : $gamePackageName.ACTION_OPEN_GAME")
+                    intent.putExtra("orderedItemOrder",this@MainActivity.orderedItemOrder)
+                    intent.putExtra("tentativa", this@MainActivity.tentativa)
+                    try {
+                        startActivity(intent)
+                    }catch(e: Exception) {
 
-
-                    } else {
                         Log.d("debugTag","intent is null will try to download")
+                        Log.d("debugTag","gameApkUrl : $gameApkUrl")
                         // Game app is not installed, initiate download and installation
                         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                         val request = DownloadManager.Request(Uri.parse(gameApkUrl))
@@ -246,7 +257,6 @@ fun AppGameEducation(orderedItemOrder: Int, context:Context) {
 
 
 }
-
 
 
 

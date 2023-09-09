@@ -1,21 +1,14 @@
 package com.example.gameducation
 
-import android.app.Activity
 import android.content.Context
-import android.content.pm.ActivityInfo
-import android.media.browse.MediaBrowser
 import android.os.CountDownTimer
-import android.view.OrientationEventListener
-import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.SeekBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,17 +20,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.compose.rememberImagePainter
 
 @Composable
-fun ImageWidget(content: ConteudoDidatico, dataCallback: DataCallback){
+fun ImageWidget(content: ConteudoDidatico, dataCallback: DataCallback) {
 
     val timerDuration = 60000L // 60 seconds in milliseconds
     var isTimerRunning by remember { mutableStateOf(false) }
@@ -54,7 +45,10 @@ fun ImageWidget(content: ConteudoDidatico, dataCallback: DataCallback){
             override fun onFinish() {
                 // Timer finished, you can perform actions here
                 isTimerRunning = false
-                // Call dataCallback.onDataGenerated(...) if needed
+                var correto = true
+                var percentagem = 100.toFloat()
+                content.visto = correto
+                dataCallback.onDataGenerated(correto, percentagem,null, content)
             }
         }.start()
     }
@@ -66,13 +60,16 @@ fun ImageWidget(content: ConteudoDidatico, dataCallback: DataCallback){
         modifier = Modifier.padding(16.dp)
     )
 
-    val imageUrl = "http://10.0.2.2:80/framework/professor/conteudos_didaticos/${content.conteudo_path}"
-    Image(
-        painter = rememberImagePainter(imageUrl),
-        contentDescription = null, // Provide a meaningful description
-        modifier = Modifier.fillMaxWidth() // Adjust the size as needed
-    )
-}
+        println("conteudoPath " + content.conteudo_path)
+        val imageUrl =
+            "http://10.0.2.2:80/framework/professor/conteudos_didaticos/${content.conteudo_path}"
+        Image(
+            painter = rememberImagePainter(imageUrl),
+            contentDescription = null, // Provide a meaningful description
+            modifier = Modifier.fillMaxWidth() // Adjust the size as needed
+        )
+    }
+
 
 @Composable
 fun TextWidget(content: ConteudoDidatico, dataCallback: DataCallback){
@@ -90,6 +87,19 @@ fun TextWidget(content: ConteudoDidatico, dataCallback: DataCallback){
             modifier = Modifier.padding(16.dp)
         )
     }
+
+        Button(
+            onClick = {
+
+                var correto = true
+                content.visto = correto
+                dataCallback.onDataGenerated(correto, 100.toFloat(),null,content)
+
+            },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text(text = "Submit")
+        }
 }
 
 @Composable
@@ -97,7 +107,7 @@ fun VideoWidget(content: ConteudoDidatico, dataCallback: DataCallback){
     val timerDuration = 60000L // 60 seconds in milliseconds
     var isTimerRunning by remember { mutableStateOf(false) }
     var remainingTime by remember { mutableStateOf(timerDuration) }
-
+    var correto = true
     // Start the timer when the Composable is first displayed
     if (!isTimerRunning) {
         isTimerRunning = true
@@ -109,7 +119,9 @@ fun VideoWidget(content: ConteudoDidatico, dataCallback: DataCallback){
             override fun onFinish() {
                 // Timer finished, you can perform actions here
                 isTimerRunning = false
-                // Call dataCallback.onDataGenerated(...) if needed
+
+                content.visto = correto
+                dataCallback.onDataGenerated(correto,100.toFloat(), null, content)
             }
         }.start()
     }
@@ -120,6 +132,7 @@ fun VideoWidget(content: ConteudoDidatico, dataCallback: DataCallback){
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.padding(16.dp)
     )
+
 
     val videoUrl = "http://10.0.2.2:80/framework/professor/conteudos_didaticos/${content.conteudo_path}"
 
@@ -144,6 +157,7 @@ fun VideoWidget(content: ConteudoDidatico, dataCallback: DataCallback){
             }
         )
     }
+
 
 }
 

@@ -9,13 +9,17 @@ data class CombinedData(
     val conteudos_didaticos: List<ConteudoDidatico>,
     val aluno: Aluno,
     val jogo: Jogo,
-    val idProfessor: Int
+    val idForm: Int,
+    val idProfessor: Int,
+    val ordemAtual:Int,
+    val tentativa:Int
+
 )
 
 @Parcelize
 data class Pergunta(
     // Define properties here based on your JSON structure
-    val idPergunta: Int,
+    val idpergunta: Int,
     val nome: String,
     val questao: String,
     val correta: Int,
@@ -24,8 +28,8 @@ data class Pergunta(
     val respostas: List<Resposta>,
 
     var userResponse: String?,        // User's response for text questions
-    var userChoices: List<Int>?,      // User's selected choices for multiple choice questions
-    var userMapping: Map<Int, Int>?,  // User's correspondence mapping for correspondence questions
+    var userChoices: List<String>?,      // User's selected choices for multiple choice questions
+    var userMapping: Map<String, String>?,  // User's correspondence mapping for correspondence questions
     var userIsCorrect: Boolean?
 ) : Parcelable
 
@@ -37,7 +41,8 @@ data class ConteudoDidatico(
     val textoInformativo: String,
     val conteudo_path: String,
     val ordem: Int,
-    val tipo: Int
+    val tipo: Int,
+    var visto: Boolean?
 ) :Parcelable
 
 
