@@ -203,7 +203,8 @@ fun AppGameEducation(orderedItemOrder: Int, context:Context) {
 
                 combinedData?.let { data ->
 
-                    this@MainActivity.orderedItemOrder = data.ordemAtual
+                        this@MainActivity.orderedItemOrder = data.ordemAtual
+
                     println("onCreate ${data.ordemAtual.toString()}")
                     println("onCreate ${ this@MainActivity.orderedItemOrder}")
                     this@MainActivity.tentativa = data.tentativa
